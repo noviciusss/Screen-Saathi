@@ -1,0 +1,39 @@
+# Secrets and local environment files
+.env*
+!.env.example
+
+# Python environments, caches, and tooling output
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Runtime logs and local usage data
+backend/logs/
+*.log
+
+# Spike audio and generated artifacts
+backend/spikes/audio/
+backend/spikes/artifacts/
+extension/public/audio/generated/
+
+# Node dependencies and extension build output
+node_modules/
+extension/node_modules/
+extension/.output/
+extension/dist/
+extension/.wxt/
+extension/.playwright-browsers/
+.vitest/
+
+# Evaluation output generated locally
+eval/results/*.json
+eval/results/*.csv
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
