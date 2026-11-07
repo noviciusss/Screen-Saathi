@@ -372,6 +372,13 @@ async def _session(websocket: WebSocket, service: FastAPI) -> None:
         except (asyncio.CancelledError, WebSocketDisconnect):
             raise
         except Exception as error:
+            if final_transcript_event is not None and final_transcript_event.is_set():
+                LOGGER.info(
+                    "screen_saathi stt_closed_after_final connection_id=%s error_type=%s",
+                    connection_id,
+                    type(error).__name__,
+                )
+                return
             stt_error_sent = True
             LOGGER.warning(
                 "screen_saathi stt_failed connection_id=%s error_type=%s",
@@ -435,7 +442,7 @@ async def _session(websocket: WebSocket, service: FastAPI) -> None:
                         connection_id,
                         type(error).__name__,
                     )
-                    if not stt_error_sent:
+                    if not stt_error_sent and not final_received:
                         await send_model(
                             ErrorMessage(
                                 code="stt_unavailable",
