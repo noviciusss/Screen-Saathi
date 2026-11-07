@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Citizen Services Application</title>
+    <style>
+      body { margin: 0; font-family: system-ui, sans-serif; background: #f3f4f6; color: #111827; }
+      .sticky-header { position: sticky; top: 0; z-index: 2; padding: 16px 24px; background: #12355b; color: white; }
+      .sticky-header nav { display: flex; gap: 20px; }
+      .sticky-header a { color: white; }
+      main { max-width: 900px; margin: 24px auto; padding: 0 24px 48px; }
+      fieldset { margin: 20px 0; padding: 18px; background: white; border: 1px solid #cbd5e1; }
+      legend { padding: 0 8px; font-weight: 700; }
+      .field { display: grid; gap: 6px; margin: 12px 0; }
+      input, select, textarea { min-height: 36px; padding: 6px; font: inherit; }
+      .nested { margin-left: 20px; padding-left: 18px; border-left: 4px solid #dbeafe; }
+      button { min-height: 44px; padding: 8px 18px; }
+    </style>
+  </head>
+  <body>
+    <header class="sticky-header">
+      <strong>Citizen Services Portal</strong>
+      <nav aria-label="Primary navigation"><a href="#application">Application</a><a href="#help">Help</a><a href="#status">Check status</a></nav>
+    </header>
+    <main id="application">
+      <h1>Public Service Application</h1>
+      <p>This is a synthetic government-style application. No real personal information is requested.</p>
+      <form id="citizen-application">
+        <fieldset>
+          <legend>Applicant identity</legend>
+          <div class="field"><label for="field-01">Applicant full name</label><input id="field-01" name="full-name" type="text"></div>
+          <div class="field"><label for="field-02">Preferred name</label><input id="field-02" name="preferred-name" type="text"></div>
+          <div class="field"><label for="field-03">Date of birth</label><input id="field-03" name="date-of-birth" type="date"></div>
+          <div class="field"><label for="field-04">Gender</label><select id="field-04" name="gender"><option>Select gender</option><option>Woman</option><option>Man</option></select></div>
+          <div class="field"><label for="field-05">Relationship status</label><select id="field-05" name="relationship-status"><option>Select status</option><option>Single</option><option>Married</option></select></div>
+          <div class="field"><label for="field-06">Preferred language</label><select id="field-06" name="language"><option>Hindi</option><option>English</option><option>Tamil</option></select></div>
+          <div class="field"><label for="field-07">Parent or guardian name</label><input id="field-07" name="guardian-name" type="text"></div>
+          <div class="field"><label for="field-08">Household size</label><input id="field-08" name="household-size" type="number"></div>
+        </fieldset>
+        <fieldset>
+          <legend>Contact details</legend>
+          <div class="field"><label for="field-09">Email address</label><input id="field-09" name="email" type="email"></div>
+          <div class="field"><label for="field-10">Alternate email</label><input id="field-10" name="alternate-email" type="email"></div>
+          <div class="field"><label for="field-11">Contact phone</label><input id="field-11" name="phone" type="tel"></div>
+          <div class="field"><label for="field-12">Best time to call</label><select id="field-12" name="call-time"><option>Morning</option><option>Afternoon</option><option>Evening</option></select></div>
+          <div class="field"><label for="field-13">Preferred contact method</label><select id="field-13" name="contact-method"><option>Phone</option><option>Email</option><option>Letter</option></select></div>
+          <div class="field"><label for="field-14">Emergency contact name</label><input id="field-14" name="emergency-name" type="text"></div>
+          <div class="field"><label for="field-15">Emergency contact relation</label><input id="field-15" name="emergency-relation" type="text"></div>
+          <div class="field"><label for="field-16">Emergency contact phone</label><input id="field-16" name="emergency-phone" type="tel"></div>
+        </fieldset>
+        <fieldset>
+          <legend>Address</legend>
+          <div class="nested">
+            <div class="field"><label for="field-17">House or building</label><input id="field-17" name="building" type="text"></div>
+            <div class="field"><label for="field-18">Street or lane</label><input id="field-18" name="street" type="text"></div>
+            <div class="field"><label for="field-19">Locality</label><input id="field-19" name="locality" type="text"></div>
+            <div class="field"><label for="field-20">Village or town</label><input id="field-20" name="town" type="text"></div>
+            <div class="field"><label for="field-21">District</label><select id="field-21" name="district"><option>Select district</option><option>Sample district</option></select></div>
+            <div class="field"><label for="field-22">State</label><select id="field-22" name="state"><option>Select state</option><option>Sample state</option></select></div>
+            <div class="field"><label for="field-23">Postal code</label><input id="field-23" name="postal-code" type="text"></div>
+            <div class="field"><label for="field-24">Address landmark</label><input id="field-24" name="landmark" type="text"></div>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Service request</legend>
+          <div class="field"><label for="field-25">Service category</label><select id="field-25" name="category"><option>Select category</option><option>Water</option><option>Road</option></select></div>
+          <div class="field"><label for="field-26">Request type</label><select id="field-26" name="request-type"><option>Select request type</option><option>New service</option><option>Complaint</option></select></div>
+          <div class="field"><label for="field-27">Request subject</label><input id="field-27" name="subject" type="text"></div>
+          <div class="field"><label for="field-28">Request description</label><textarea id="field-28" name="description"></textarea></div>
+          <div class="field"><label for="field-29">Preferred visit date</label><input id="field-29" name="visit-date" type="date"></div>
+          <div class="field"><label for="field-30">Preferred visit time</label><select id="field-30" name="visit-time"><option>Morning</option><option>Afternoon</option></select></div>
+          <div class="field"><label for="field-31">Accessibility support needed</label><select id="field-31" name="support"><option>No</option><option>Yes</option></select></div>
+          <div class="field"><label for="field-32">Support details</label><input id="field-32" name="support-details" type="text"></div>
+        </fieldset>
+        <fieldset>
+          <legend>Documents and declarations</legend>
+          <div class="field"><label for="field-33">Document type</label><select id="field-33" name="document-type"><option>Select document</option><option>Certificate</option><option>Letter</option></select></div>
+          <div class="field"><label for="field-34">Document reference nickname</label><input id="field-34" name="document-nickname" type="text"></div>
+          <div class="field"><label for="field-35">Document issue date</label><input id="field-35" name="issue-date" type="date"></div>
+          <div class="field"><label for="field-36">Issuing office</label><input id="field-36" name="issuing-office" type="text"></div>
+          <div class="field"><label for="field-37">Declaration language</label><select id="field-37" name="declaration-language"><option>Hindi</option><option>English</option></select></div>
+          <div class="field"><label for="field-38">Notification preference</label><select id="field-38" name="notification"><option>Email</option><option>Letter</option></select></div>
+          <div class="field"><label for="field-39">Additional comments</label><textarea id="field-39" name="comments"></textarea></div>
+          <div class="field"><label for="field-40">Applicant declaration</label><input id="field-40" name="declaration" type="checkbox"></div>
+        </fieldset>
+        <button type="submit">Save application draft</button>
+      </form>
+    </main>
+  </body>
+</html>

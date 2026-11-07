@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Daily information and offers</title>
+    <style>
+      body { margin: 0; font-family: system-ui, sans-serif; background: #eef2f7; }
+      .top { position: sticky; top: 0; z-index: 3; padding: 14px; background: #172554; color: white; }
+      .layout { display: grid; grid-template-columns: 1fr 280px; gap: 20px; max-width: 1200px; margin: auto; padding: 20px; }
+      article, aside, .card { background: white; border: 1px solid #cbd5e1; border-radius: 8px; padding: 14px; }
+      .card-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+      .ad { min-height: 80px; background: #fef3c7; }
+      button, a { margin: 3px; }
+    </style>
+  </head>
+  <body>
+    <header class="top"><strong>Daily information</strong><nav aria-label="Site navigation"><a href="#news">News</a><a href="#offers">Offers</a><a href="#help">Help</a></nav></header>
+    <div class="layout">
+      <main id="news"><article><h1>Today’s information</h1><p>This is a synthetic ad-heavy page used to check snapshot limits.</p><div id="story-cards" class="card-grid"></div></article></main>
+      <aside id="offers" aria-label="Offers"><h2>Offers</h2><div id="ad-cards"></div></aside>
+    </div>
+    <script>
+      const stories = document.querySelector('#story-cards');
+      const ads = document.querySelector('#ad-cards');
+      for (let i = 1; i <= 180; i += 1) {
+        const card = document.createElement('section');
+        card.className = 'card';
+        card.innerHTML = `<h3>Story ${i}</h3><p>Short synthetic summary for story ${i}.</p><a href="#story-${i}" aria-label="Read story ${i}">Read more</a><button type="button" aria-label="Save story ${i}">Save</button>`;
+        stories.append(card);
+      }
+      for (let i = 1; i <= 90; i += 1) {
+        const ad = document.createElement('section');
+        ad.className = 'card ad';
+        ad.innerHTML = `<h3>Offer ${i}</h3><p>Synthetic advertisement.</p><button type="button" aria-label="View offer ${i}">View offer</button><a href="#offer-${i}">Details</a>`;
+        ads.append(ad);
+      }
+    </script>
+  </body>
+</html>
