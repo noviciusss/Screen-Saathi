@@ -8,10 +8,14 @@
     "prepare": "wxt prepare",
     "typecheck": "wxt prepare && tsc --noEmit",
     "test": "vitest run",
+    "test:snapshot": "vitest --config vitest.playwright.config.ts run tests/snapshot.playwright.test.ts --reporter=verbose",
+    "test:audio": "vitest --config vitest.playwright.config.ts run tests/audio.playwright.test.ts --reporter=verbose",
     "test:watch": "vitest",
     "build": "wxt build"
   },
   "dependencies": {
+    "@fontsource/inter": "5.3.0",
+    "@fontsource/noto-sans-devanagari": "5.3.0",
     "react": "19.3.1",
     "react-dom": "19.3.1"
   },
