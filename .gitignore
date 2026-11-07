@@ -12,6 +12,8 @@ __pycache__/
 
 # Runtime logs and local usage data
 backend/logs/
+extension/logs/
+logs/
 *.log
 
 # Spike audio and generated artifacts
@@ -27,10 +29,22 @@ extension/dist/
 extension/.wxt/
 extension/.playwright-browsers/
 .vitest/
-
+backend/venv/
+backend/.venv-win/
 # Evaluation output generated locally
 eval/results/*.json
 eval/results/*.csv
+
+# Internal development notes, task lists, and AI instructions
+AGENTS.md
+TASKS.md
+GNANI_API_NOTES.md
+ENGAGEMENT_PLAN.md
+SPEC.md
+CHECKPOINT.md
+doc/
+docs/CHECKPOINT.md
+docs/DECISIONS.md
 
 # OS/editor files
 .DS_Store
