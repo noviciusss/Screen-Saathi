@@ -1,0 +1,15 @@
+:root { color: #172033; background: #f5f7fb; font-family: Arial, sans-serif; }
+body { margin: 0; }
+.options { max-width: 760px; margin: 0 auto; padding: 40px 24px; }
+h1 { font-size: 32px; }
+h2 { font-size: 24px; }
+.lead, .card p { font-size: 19px; line-height: 1.5; }
+.card { margin-top: 24px; padding: 24px; border-radius: 20px; background: white; box-shadow: 0 8px 24px #17203318; }
+.add-row { display: flex; gap: 12px; }
+input, button { min-height: 56px; border-radius: 12px; font-size: 18px; }
+input { flex: 1; min-width: 0; padding: 0 14px; border: 2px solid #cbd5e1; }
+label { display: grid; gap: 8px; margin: 14px 0; font-size: 18px; }
+button { padding: 0 18px; border: 0; color: white; background: #1d4ed8; cursor: pointer; }
+li { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin: 10px 0; font-size: 18px; }
+li button { min-height: 44px; color: #991b1b; background: #fee2e2; }
+.save { margin-top: 12px; background: #15803d; }
