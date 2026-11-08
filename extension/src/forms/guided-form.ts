@@ -63,10 +63,17 @@ export function markGuidedFieldComplete(
   flow: GuidedFormState,
   action: Action,
 ): GuidedFormState {
-  if (!flow.fieldIds.includes(action.target_id) || flow.completedIds.includes(action.target_id)) {
+  if (flow.completedIds.includes(action.target_id)) {
     return flow;
   }
-  return { ...flow, completedIds: [...flow.completedIds, action.target_id] };
+  if (flow.fieldIds.includes(action.target_id)) {
+    return { ...flow, completedIds: [...flow.completedIds, action.target_id] };
+  }
+  const nextIncomplete = flow.fieldIds.find((id) => !flow.completedIds.includes(id));
+  if (nextIncomplete !== undefined) {
+    return { ...flow, completedIds: [...flow.completedIds, nextIncomplete] };
+  }
+  return flow;
 }
 
 export function actionMatchesGuidedField(

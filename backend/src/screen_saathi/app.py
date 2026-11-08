@@ -73,7 +73,7 @@ STT_LANGUAGE_BY_SESSION_LANGUAGE = {
     # Prisma accepts en-IN for mixed Hindi-English speech; hi-en is Timbre-only.
     "hi-en": "en-IN",
 }
-STT_FINAL_WAIT_SECONDS = 2.0
+STT_FINAL_WAIT_SECONDS = 4.0
 STT_TASK_WAIT_SECONDS = 15.0
 
 
@@ -279,6 +279,7 @@ async def _session(websocket: WebSocket, service: FastAPI) -> None:
         )
 
     async def echo_transcript(transcript: TranscriptMessage) -> None:
+        nonlocal active_turn_id
         voice = VOICE_BY_LANGUAGE[hello.language]
         request = TtsRequest(
             request_id=transcript.turn_id,
@@ -315,6 +316,7 @@ async def _session(websocket: WebSocket, service: FastAPI) -> None:
                     return
         await send_model(TtsEndMessage(turn_id=transcript.turn_id))
         LOGGER.warning("screen_saathi tts_end connection_id=%s", connection_id)
+        active_turn_id = None
 
     async def assistant_transcript(transcript: TranscriptMessage) -> None:
         nonlocal ai_disclosed
@@ -608,10 +610,16 @@ async def _session(websocket: WebSocket, service: FastAPI) -> None:
                 continue
             if isinstance(client_message, AudioStartMessage):
                 if active_turn_id is not None:
-                    await send_model(
-                        ErrorMessage(code="turn_active", message="Finish the active turn first.")
-                    )
-                    continue
+                    if stt is None:
+                        LOGGER.warning("screen_saathi interrupting_turn connection_id=%s", connection_id)
+                        if stt_task is not None:
+                            stt_task.cancel()
+                        active_turn_id = None
+                    else:
+                        await send_model(
+                            ErrorMessage(code="turn_active", message="Finish the active turn first.")
+                        )
+                        continue
                 active_turn_id = client_message.turn_id
                 stt_language = STT_LANGUAGE_BY_SESSION_LANGUAGE[hello.language]
                 LOGGER.warning(

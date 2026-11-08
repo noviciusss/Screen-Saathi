@@ -267,19 +267,8 @@ function SidePanel(): ReactElement {
           } else if (message.type === "assistant") {
             setReply(message.speak);
             setScamVerdict(message.scam_verdict);
-            const guidedField = pageSnapshot === null ? null : currentGuidedField(pageSnapshot, guidedFlow);
-            if (
-              guidedFlow !== null &&
-              message.action !== null &&
-              !actionMatchesGuidedField(message.action, guidedField)
-            ) {
-              pendingActionRef.current = null;
-              setPendingAction(null);
-              setStatus(copy.guidedMismatch);
-            } else {
-              pendingActionRef.current = message.action;
-              setPendingAction(message.action);
-            }
+            pendingActionRef.current = message.action;
+            setPendingAction(message.action);
             if (message.highlight_id !== null) void highlightPageElement(message.highlight_id);
           } else if (message.type === "tts_start") {
             playbackRef.current.startStream(message.sample_rate);
@@ -361,9 +350,16 @@ function SidePanel(): ReactElement {
         captureRef.current = null;
         return;
       }
-      if (pageSnapshot !== null) {
-        const guidedField = currentGuidedField(pageSnapshot, guidedFlow);
-        session.setContext(pageSnapshot, selectedText || null, guidedField);
+      try {
+        const fresh = await requestActiveTabSnapshot();
+        setPageSnapshot(fresh);
+        const guidedField = currentGuidedField(fresh, guidedFlow);
+        session.setContext(fresh, selectedText || null, guidedField);
+      } catch {
+        if (pageSnapshot !== null) {
+          const guidedField = currentGuidedField(pageSnapshot, guidedFlow);
+          session.setContext(pageSnapshot, selectedText || null, guidedField);
+        }
       }
       turnIdRef.current = turnId;
       session.startTurn(turnId);
@@ -454,20 +450,33 @@ function SidePanel(): ReactElement {
       setStatus(result.message ?? (language === "en-IN" ? "I could not change that field." : "मैं उस field को नहीं बदल पाया।"));
       return;
     }
-    if (guidedFlow !== null && pageSnapshot !== null) {
-      const nextSnapshot = updateSnapshotAfterAction(pageSnapshot, action);
-      const nextFlow = markGuidedFieldComplete(guidedFlow, action);
-      setPageSnapshot(nextSnapshot);
-      setGuidedFlow(nextFlow);
-      setStatus(currentGuidedField(nextSnapshot, nextFlow) === null ? copy.guidedDone : copy.guidedNext);
-      return;
+    try {
+      const fresh = await requestActiveTabSnapshot();
+      setPageSnapshot(fresh);
+      if (guidedFlow !== null) {
+        const nextFlow = markGuidedFieldComplete(guidedFlow, action);
+        setGuidedFlow(nextFlow);
+        const nextField = currentGuidedField(fresh, nextFlow);
+        setStatus(nextField === null ? copy.guidedDone : `${copy.guidedNext}: ${nextField.name}`);
+      } else {
+        setStatus(language === "en-IN" ? "Done. I did not press submit." : "हो गया। मैंने जानकारी भर दी। Submit आप खुद दबाएँ।");
+      }
+    } catch {
+      if (guidedFlow !== null && pageSnapshot !== null) {
+        const nextSnapshot = updateSnapshotAfterAction(pageSnapshot, action);
+        const nextFlow = markGuidedFieldComplete(guidedFlow, action);
+        setPageSnapshot(nextSnapshot);
+        setGuidedFlow(nextFlow);
+        setStatus(currentGuidedField(nextSnapshot, nextFlow) === null ? copy.guidedDone : copy.guidedNext);
+      } else {
+        setStatus(language === "en-IN" ? "Done. I did not press submit." : "हो गया। मैंने जानकारी भर दी। Submit आप खुद दबाएँ।");
+      }
     }
-    setStatus(language === "en-IN" ? "Done. I did not press submit." : "हो गया। मैंने Submit नहीं दबाया।");
   }
 
   const actionTargetName = pendingAction === null
     ? ""
-    : pageSnapshot?.elements.find((element) => element.id === pendingAction.target_id)?.name ?? pendingAction.target_id;
+    : pageSnapshot?.elements.find((element) => element.id === pendingAction.target_id || element.name === pendingAction.target_id)?.name ?? pendingAction.target_id;
 
   async function acceptConsent(): Promise<void> {
     await chrome.storage.local.set({ [CONSENT_STORAGE_KEY]: true });
