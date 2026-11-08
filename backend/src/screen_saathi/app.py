@@ -8,6 +8,7 @@ import hmac
 import logging
 import time
 import uuid
+from pathlib import Path
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel, ValidationError
@@ -131,6 +132,12 @@ def create_app(
     @service.websocket("/v1/session")
     async def session(websocket: WebSocket) -> None:
         await _session(websocket, service)
+
+    fixtures_dir = Path(__file__).resolve().parents[3] / "fixtures" / "pages"
+    if fixtures_dir.is_dir():
+        from starlette.staticfiles import StaticFiles
+
+        service.mount("/fixtures", StaticFiles(directory=fixtures_dir, html=True), name="fixtures")
 
     return service
 
