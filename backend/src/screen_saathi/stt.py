@@ -222,14 +222,13 @@ class SttProxy:
                 await self.start()
 
     async def finish(self) -> None:
-        """Send paced VAD silence and leave the socket open for final events."""
+        """Send trailing VAD silence and leave the socket open for final events."""
 
         if self._transport is None:
             return
         silence = bytes(FRAME_BYTES)
         for _ in range(TRAILING_SILENCE_FRAMES):
             await self.send_frame(silence)
-            await asyncio.sleep(FRAME_SECONDS)
 
     async def close(self) -> None:
         self._closed = True

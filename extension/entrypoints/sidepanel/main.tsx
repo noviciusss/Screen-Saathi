@@ -205,6 +205,7 @@ function SidePanel(): ReactElement {
   const [scamVerdict, setScamVerdict] = useState<{ level: string; reasons: string[] } | null>(null);
   const [selectedText, setSelectedText] = useState("");
   const [consentAccepted, setConsentAccepted] = useState<boolean | null>(null);
+  const silencedTurnRef = useRef(false);
   const [guidedFlow, setGuidedFlow] = useState<GuidedFormState | null>(null);
   const pendingActionRef = useRef<Action | null>(null);
 
@@ -271,15 +272,19 @@ function SidePanel(): ReactElement {
             setPendingAction(message.action);
             if (message.highlight_id !== null) void highlightPageElement(message.highlight_id);
           } else if (message.type === "tts_start") {
+            if (silencedTurnRef.current) return;
             playbackRef.current.startStream(message.sample_rate);
             setStatus(language === "en-IN" ? "Listening to Saathi’s reply…" : "जवाब सुनिए…");
           } else if (message.type === "tts_end") {
-            setStatus(copy.responseFinished);
+            if (!silencedTurnRef.current) {
+              setStatus(copy.responseFinished);
+            }
           } else if (message.type === "error") {
             setStatus(friendlyError(message.code, `Service issue: ${message.message}`, language));
           }
         },
         onAudioChunk: (chunk) => {
+          if (silencedTurnRef.current) return;
           try {
             playbackRef.current.enqueue(chunk);
             setReply(language === "en-IN" ? "Playing your reply…" : "आपका जवाब चल रहा है…");
@@ -320,6 +325,7 @@ function SidePanel(): ReactElement {
     if (startingRef.current || captureRef.current !== null) return;
     startingRef.current = true;
     releaseRequestedRef.current = false;
+    silencedTurnRef.current = false;
     playbackRef.current.clear();
     setIsCapturing(true);
     setStatus(copy.statusMic);
@@ -441,6 +447,8 @@ function SidePanel(): ReactElement {
   }
 
   async function confirmAction(): Promise<void> {
+    silencedTurnRef.current = true;
+    playbackRef.current.clear();
     const action = pendingActionRef.current;
     if (action === null) return;
     const result = await executePageAction(action);
@@ -552,7 +560,7 @@ function SidePanel(): ReactElement {
           </p>
           <div className="confirmation-actions">
             <button className="confirm-button confirm-button--yes" type="button" onClick={() => void confirmAction()}>{copy.confirmYes}</button>
-            <button className="confirm-button confirm-button--no" type="button" onClick={() => { pendingActionRef.current = null; setPendingAction(null); }}>{copy.confirmNo}</button>
+            <button className="confirm-button confirm-button--no" type="button" onClick={() => { silencedTurnRef.current = true; playbackRef.current.clear(); pendingActionRef.current = null; setPendingAction(null); }}>{copy.confirmNo}</button>
           </div>
         </section>
       ) : null}
