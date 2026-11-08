@@ -75,6 +75,7 @@ STT_LANGUAGE_BY_SESSION_LANGUAGE = {
 }
 STT_FINAL_WAIT_SECONDS = 4.0
 STT_TASK_WAIT_SECONDS = 15.0
+DISCLOSED_CLIENTS: set[str] = set()
 
 
 def _client_identity(websocket: WebSocket) -> str:
@@ -216,8 +217,11 @@ async def _session(websocket: WebSocket, service: FastAPI) -> None:
     latest_context: PageContext | None = None
     client_key = f"{_client_identity(websocket)}:{hello.session_token}"
     client_already_disclosed = (
-        hasattr(service.state, "disclosed_clients")
-        and client_key in service.state.disclosed_clients
+        client_key in DISCLOSED_CLIENTS
+        or (
+            hasattr(service.state, "disclosed_clients")
+            and client_key in service.state.disclosed_clients
+        )
     )
     ai_disclosed = client_already_disclosed
     stt_error_sent = False
@@ -334,6 +338,7 @@ async def _session(websocket: WebSocket, service: FastAPI) -> None:
                 )
                 response = response.model_copy(update={"speak": disclosure + response.speak})
                 ai_disclosed = True
+                DISCLOSED_CLIENTS.add(client_key)
                 if hasattr(service.state, "disclosed_clients"):
                     service.state.disclosed_clients.add(client_key)
         except ReasonerError as error:

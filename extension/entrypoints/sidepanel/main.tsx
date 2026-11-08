@@ -312,7 +312,8 @@ function SidePanel(): ReactElement {
 
   async function getSession(): Promise<VoiceSessionClient> {
     const existing = sessionRef.current;
-    if (existing !== null && (existing.state === "ready" || existing.state === "recording")) {
+    if (existing !== null && existing.isConnected) {
+      existing.resetToReady();
       return existing;
     }
     existing?.close();

@@ -156,6 +156,59 @@ function executeAction(action: Action): ActionResponse {
     element.focus();
     return { ok: true };
   }
+  const tag = element.tagName.toLowerCase();
+  if (tag === "select" || action.type === "select") {
+    const select = element as HTMLSelectElement;
+    const search = (action.option || action.value || "").trim().toLowerCase();
+    if (!search) return { ok: false, message: "No option specified." };
+
+    let matched: HTMLOptionElement | undefined = Array.from(select.options).find((opt) => {
+      const val = opt.value.toLowerCase().trim();
+      const txt = (opt.textContent ?? "").toLowerCase().trim();
+      return val === search || txt === search;
+    });
+
+    if (!matched) {
+      matched = Array.from(select.options).find((opt) => {
+        if (!opt.value && opt.index === 0) return false;
+        const txt = (opt.textContent ?? "").toLowerCase();
+        const val = opt.value.toLowerCase();
+        return txt.includes(search) || (search.length >= 2 && val.includes(search));
+      });
+    }
+
+    if (!matched) {
+      const synonyms: Record<string, string[]> = {
+        male: ["पुरुष", "लड़का", "मर्द", "male", "m"],
+        female: ["महिला", "स्त्री", "लड़की", "औरत", "female", "f"],
+        other: ["अन्य", "other"],
+        up: ["उत्तर प्रदेश", "uttar pradesh", "up"],
+        dl: ["दिल्ली", "delhi", "dl"],
+        br: ["बिहार", "bihar", "br"],
+        mp: ["मध्य प्रदेश", "madhya pradesh", "mp"],
+        rj: ["राजस्थान", "rajasthan", "rj"],
+        mh: ["महाराष्ट्र", "maharashtra", "mh"],
+        wb: ["पश्चिम बंगाल", "west bengal", "wb"],
+      };
+      for (const [key, aliases] of Object.entries(synonyms)) {
+        if (aliases.some((a) => search.includes(a) || a.includes(search))) {
+          matched = Array.from(select.options).find((opt) => {
+            const val = opt.value.toLowerCase();
+            const txt = (opt.textContent ?? "").toLowerCase();
+            return val === key || txt.includes(key) || aliases.some((a) => txt.includes(a));
+          });
+          if (matched) break;
+        }
+      }
+    }
+
+    if (!matched) return { ok: false, message: "That option is not available." };
+
+    select.value = matched.value;
+    select.dispatchEvent(new Event("input", { bubbles: true }));
+    select.dispatchEvent(new Event("change", { bubbles: true }));
+    return { ok: true };
+  }
   if (action.type === "fill") {
     if (action.value === null || action.value === undefined) return { ok: false, message: "No value was provided." };
     input.value = action.value;
@@ -167,14 +220,6 @@ function executeAction(action: Action): ActionResponse {
     input.dispatchEvent(new Event("input", { bubbles: true }));
     input.dispatchEvent(new Event("change", { bubbles: true }));
     input.dispatchEvent(new Event("blur", { bubbles: true }));
-    return { ok: true };
-  }
-  if (action.type === "select") {
-    const select = element as HTMLSelectElement;
-    const option = Array.from(select.options).find((candidate) => candidate.textContent?.trim() === action.option || candidate.value === action.option);
-    if (option === undefined) return { ok: false, message: "That option is not available." };
-    select.value = option.value;
-    select.dispatchEvent(new Event("change", { bubbles: true }));
     return { ok: true };
   }
   if (action.type === "check") {

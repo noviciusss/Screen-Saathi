@@ -79,6 +79,18 @@ export class VoiceSessionClient {
     return this.stateValue;
   }
 
+  public get isConnected(): boolean {
+    return this.socket !== null && this.socket.readyState === OPEN_STATE && this.stateValue !== "closed" && this.stateValue !== "error";
+  }
+
+  public resetToReady(): void {
+    this.activeTurnId = null;
+    this.ttsTurnId = null;
+    if (this.stateValue !== "ready" && this.isConnected) {
+      this.setState("ready");
+    }
+  }
+
   public async connect(): Promise<void> {
     if (this.stateValue === "ready") return;
     if (this.stateValue === "connecting") {
