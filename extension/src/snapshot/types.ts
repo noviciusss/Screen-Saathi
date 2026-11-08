@@ -16,6 +16,7 @@ export interface SnapshotElement {
   cross_origin_frame?: boolean;
   sensitive?: boolean;
   autocomplete?: string | null;
+  options?: string[];
 }
 
 export interface SnapshotHeading {

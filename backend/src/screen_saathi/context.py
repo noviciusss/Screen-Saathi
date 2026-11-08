@@ -29,6 +29,7 @@ class SnapshotElement(BaseModel):
     cross_origin_frame: bool = False
     sensitive: bool = False
     autocomplete: str | None = None
+    options: list[str] | None = None
 
 
 class SnapshotHeading(BaseModel):

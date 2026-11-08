@@ -211,6 +211,14 @@ export function buildSnapshot(): PageSnapshot {
         crossOriginFrame = true;
       }
     }
+    const selectOptions =
+      element.tagName.toLowerCase() === "select" && element instanceof HTMLSelectElement
+        ? Array.from(element.options)
+            .map((opt) => clean(opt.textContent ?? ""))
+            .filter((t) => t.length > 0 && !t.includes("--"))
+            .slice(0, 15)
+        : undefined;
+
     return {
       id: idFor(element),
       tag: element.tagName.toLowerCase(),
@@ -227,6 +235,7 @@ export function buildSnapshot(): PageSnapshot {
       sensitive: sensitiveField(element),
       autocomplete: element.getAttribute("autocomplete"),
       ...(element.tagName.toLowerCase() === "iframe" ? { cross_origin_frame: crossOriginFrame } : {}),
+      ...(selectOptions && selectOptions.length > 0 ? { options: selectOptions } : {}),
     };
   });
 

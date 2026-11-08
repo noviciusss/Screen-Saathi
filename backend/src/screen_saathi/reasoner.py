@@ -52,6 +52,7 @@ def _page_data(request: ReasonRequest) -> str:
             "role": el.role or el.tag,
             "value": el.value or "",
             "filled": bool(el.value and el.value.strip()),
+            **({"options": el.options[:10]} if el.options else {}),
         }
         for el in snapshot.elements[:40]
         if el.name.strip()
