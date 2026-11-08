@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 from pathlib import Path
 from typing import Protocol
 
@@ -68,6 +69,53 @@ def _page_data(request: ReasonRequest) -> str:
         compact["guided_field_name"] = context.guided_field_name
 
     return json.dumps(compact, ensure_ascii=False, separators=(",", ":"))
+
+
+def _clean_json_text(text: str) -> str:
+    cleaned = text.strip()
+    if cleaned.startswith("```"):
+        cleaned = re.sub(r"^```(?:json)?\s*", "", cleaned)
+        cleaned = re.sub(r"\s*```$", "", cleaned)
+    return cleaned.strip()
+
+
+def _sanitize_dict(data: dict) -> dict:
+    allowed_keys = {"speak", "highlight_id", "action", "scam_verdict", "confidence", "followup"}
+    clean = {k: v for k, v in data.items() if k in allowed_keys}
+    if isinstance(clean.get("scam_verdict"), dict):
+        sv = clean["scam_verdict"]
+        if "level" not in sv:
+            is_scam = sv.get("is_scam")
+            if is_scam is True:
+                level = "likely_scam"
+            elif is_scam is False:
+                level = "looks_ok"
+            else:
+                level = "suspicious"
+            reason = sv.get("reason") or sv.get("reasons") or "Unverified webpage"
+            reasons = reason if isinstance(reason, list) else [str(reason)]
+            clean["scam_verdict"] = {"level": level, "reasons": reasons[:3]}
+    if isinstance(clean.get("action"), dict):
+        act = clean["action"]
+        if "target_id" not in act and "target" in act:
+            act["target_id"] = act.pop("target")
+        if "type" not in act:
+            act["type"] = "focus"
+    if clean.get("confidence") not in {"high", "medium", "low"}:
+        clean["confidence"] = "medium"
+    return clean
+
+
+def _parse_reasoner_response(raw: str) -> ReasonerResponse:
+    cleaned = _clean_json_text(raw)
+    try:
+        parsed = json.loads(cleaned)
+    except json.JSONDecodeError:
+        return ReasonerResponse.model_validate_json(cleaned)
+    if isinstance(parsed, dict):
+        parsed = _sanitize_dict(parsed)
+        return ReasonerResponse.model_validate(parsed)
+    return ReasonerResponse.model_validate_json(cleaned)
 
 
 class OpenAICompatibleReasoner:
@@ -160,12 +208,14 @@ class OpenAICompatibleReasoner:
     async def respond(self, request: ReasonRequest) -> ReasonerResponse:
         raw = await self._complete(self._messages(request))
         try:
-            return ReasonerResponse.model_validate_json(raw)
-        except ValueError:
+            return _parse_reasoner_response(raw)
+        except ValueError as err1:
+            LOGGER.warning("Reasoner response parse error (attempt 1): %s; raw: %r", err1, raw)
             repaired = await self._complete(self._messages(request, repair=raw))
             try:
-                return ReasonerResponse.model_validate_json(repaired)
+                return _parse_reasoner_response(repaired)
             except ValueError as error:
+                LOGGER.error("Reasoner response parse error (attempt 2): %s; repaired: %r", error, repaired)
                 raise ReasonerError("Reasoner returned invalid JSON twice.") from error
 
 

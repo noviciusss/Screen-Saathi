@@ -18,9 +18,15 @@ Return JSON only with exactly these keys:
 {
   "speak": "string",
   "highlight_id": "string or null",
-  "action": "object or null",
-  "scam_verdict": "object or null",
-  "confidence": "high|medium|low",
-  "followup": "string or null"
+  "action": null,
+  "scam_verdict": null,
+  "confidence": "high",
+  "followup": null
 }
 ```
+
+If proposing an action, action must be:
+{"type": "fill|select|check|focus", "target_id": "string", "value": "string or null", "option": "string or null", "checked": "boolean or null"}
+
+If reporting a scam check, scam_verdict must be:
+{"level": "likely_scam|suspicious|looks_ok", "reasons": ["reason 1", "reason 2"]}
