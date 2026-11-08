@@ -249,10 +249,12 @@ function SidePanel(): ReactElement {
             let handledConfirmation = false;
             if (message.final && pendingActionRef.current !== null) {
               const normalized = message.text.trim().toLowerCase();
-              if (["हाँ", "हां", "haan", "han", "yes", "y"].includes(normalized)) {
+              const isAffirmative = /(?:^|\s|[।!?])(हाँ|हां|haan|ha|han|yes|y|yep|sure|भर दो|कर दो|भर दीजिए|कर दीजिए|भरिए|theek|ok|okay)(?:$|\s|[।!?])/i.test(normalized);
+              const isNegative = /(?:^|\s|[।!?])(नहीं|नही|nahi|nahin|no|n|nope|cancel|रोक दो|मत करो)(?:$|\s|[।!?])/i.test(normalized);
+              if (isAffirmative) {
                 handledConfirmation = true;
                 void confirmAction();
-              } else if (["नहीं", "नही", "nahi", "nahin", "no", "n"].includes(normalized)) {
+              } else if (isNegative) {
                 handledConfirmation = true;
                 pendingActionRef.current = null;
                 setPendingAction(null);

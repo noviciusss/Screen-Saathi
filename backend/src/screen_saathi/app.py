@@ -102,6 +102,7 @@ def create_app(
     )
     service.state.usage_hook = usage_hook or JsonlUsageLogger(runtime.usage_log_path)
     service.state.timestamp_hook = timestamp_hook
+    service.state.disclosed_clients = set()
     if reasoner is not None:
         service.state.reasoner = reasoner
     elif all(
@@ -213,7 +214,12 @@ async def _session(websocket: WebSocket, service: FastAPI) -> None:
     stt_audio_bytes = 0
     final_transcript_event: asyncio.Event | None = None
     latest_context: PageContext | None = None
-    ai_disclosed = False
+    client_key = f"{_client_identity(websocket)}:{hello.session_token}"
+    client_already_disclosed = (
+        hasattr(service.state, "disclosed_clients")
+        and client_key in service.state.disclosed_clients
+    )
+    ai_disclosed = client_already_disclosed
     stt_error_sent = False
     client_disconnected = False
     ended = False
@@ -320,12 +326,14 @@ async def _session(websocket: WebSocket, service: FastAPI) -> None:
             response = gate_response(response, snapshot)
             if not ai_disclosed:
                 disclosure = (
-                    "मैं एक AI voice assistant हूँ। "
+                    "मैं स्क्रीन साथी हूँ, आपकी एआई सहायक। "
                     if hello.language != "en-IN"
-                    else "I am an AI voice assistant. "
+                    else "I am Screen Saathi, your AI assistant. "
                 )
                 response = response.model_copy(update={"speak": disclosure + response.speak})
                 ai_disclosed = True
+                if hasattr(service.state, "disclosed_clients"):
+                    service.state.disclosed_clients.add(client_key)
         except ReasonerError as error:
             await send_model(ErrorMessage(code="reasoner_unavailable", message=str(error)))
             return

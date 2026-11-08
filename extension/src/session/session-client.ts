@@ -255,8 +255,12 @@ export class VoiceSessionClient {
       if (this.stateValue === "ending") this.setState("ready");
     } else if (message.type === "tts_start") {
       this.ttsTurnId = message.turn_id;
-    } else if (message.type === "tts_end" && message.turn_id === this.ttsTurnId) {
+    } else if (message.type === "tts_end") {
       this.ttsTurnId = null;
+      this.activeTurnId = null;
+      if (this.stateValue === "ending" || this.stateValue === "recording") {
+        this.setState("ready");
+      }
     }
   }
 

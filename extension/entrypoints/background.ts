@@ -80,8 +80,24 @@ async function runOnActiveTab<T, R>(fn: (value: T) => R, value: T): Promise<Acti
   }
 }
 
+function findTargetElement(targetId: string): HTMLElement | null {
+  try {
+    const bySaathi = document.querySelector<HTMLElement>(`[data-saathi-id="${CSS.escape(targetId)}"]`);
+    if (bySaathi !== null) return bySaathi;
+  } catch {}
+  const byId = document.getElementById(targetId);
+  if (byId !== null) return byId;
+  try {
+    const byName = document.querySelector<HTMLElement>(`[name="${CSS.escape(targetId)}"]`);
+    if (byName !== null) return byName;
+    const byLabel = document.querySelector<HTMLElement>(`[aria-label="${CSS.escape(targetId)}"]`);
+    if (byLabel !== null) return byLabel;
+  } catch {}
+  return null;
+}
+
 function highlightElement(targetId: string): ActionResponse {
-  const element = document.querySelector<HTMLElement>(`[data-saathi-id="${CSS.escape(targetId)}"]`);
+  const element = findTargetElement(targetId);
   if (element === null) return { ok: false, message: "The highlighted item is no longer on the page." };
   element.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
   const oldOutline = element.style.outline;
@@ -96,7 +112,7 @@ function highlightElement(targetId: string): ActionResponse {
 }
 
 function executeAction(action: Action): ActionResponse {
-  const element = document.querySelector<HTMLElement>(`[data-saathi-id="${CSS.escape(action.target_id)}"]`);
+  const element = findTargetElement(action.target_id);
   if (element === null) return { ok: false, message: "That field is no longer on the page." };
   const input = element as HTMLInputElement;
   const label = `${element.textContent ?? ""} ${element.getAttribute("aria-label") ?? ""} ${input.type}`;
@@ -117,8 +133,12 @@ function executeAction(action: Action): ActionResponse {
   }
   if (action.type === "fill") {
     if (action.value === null || action.value === undefined) return { ok: false, message: "No value was provided." };
-    const descriptor = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(input), "value");
-    descriptor?.set?.call(input, action.value);
+    input.value = action.value;
+    try {
+      const proto = Object.getPrototypeOf(input);
+      const descriptor = Object.getOwnPropertyDescriptor(proto, "value");
+      descriptor?.set?.call(input, action.value);
+    } catch {}
     input.dispatchEvent(new Event("input", { bubbles: true }));
     input.dispatchEvent(new Event("change", { bubbles: true }));
     input.dispatchEvent(new Event("blur", { bubbles: true }));
