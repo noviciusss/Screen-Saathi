@@ -44,7 +44,7 @@ export default defineBackground(() => {
       return true;
     }
     if (isExecuteActionRequest(message)) {
-      void runOnActiveTab((action) => executeAction(action), message.action).then(sendResponse);
+      void runOnActiveTab(executeAction, message.action).then(sendResponse);
       return true;
     }
     return false;
@@ -73,31 +73,40 @@ async function runOnActiveTab<T, R>(fn: (value: T) => R, value: T): Promise<Acti
   const tab = tabs[0];
   if (tab?.id === undefined) return { ok: false, message: "No active browser tab was found." };
   try {
-    const results = await chrome.scripting.executeScript({ target: { tabId: tab.id }, func: fn, args: [value] });
-    return (results[0]?.result as ActionResponse | undefined) ?? { ok: false, message: "The page did not respond." };
-  } catch {
-    return { ok: false, message: "This page cannot be changed." };
+    const results = await chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      func: fn,
+      args: [value],
+    });
+    const response = results[0]?.result as ActionResponse | undefined;
+    return response ?? { ok: false, message: "The page did not respond." };
+  } catch (error) {
+    console.warn("Screen Saathi runOnActiveTab failed", error);
+    return {
+      ok: false,
+      message: error instanceof Error ? error.message : "This page cannot be changed.",
+    };
   }
 }
 
-function findTargetElement(targetId: string): HTMLElement | null {
-  try {
-    const bySaathi = document.querySelector<HTMLElement>(`[data-saathi-id="${CSS.escape(targetId)}"]`);
-    if (bySaathi !== null) return bySaathi;
-  } catch {}
-  const byId = document.getElementById(targetId);
-  if (byId !== null) return byId;
-  try {
-    const byName = document.querySelector<HTMLElement>(`[name="${CSS.escape(targetId)}"]`);
-    if (byName !== null) return byName;
-    const byLabel = document.querySelector<HTMLElement>(`[aria-label="${CSS.escape(targetId)}"]`);
-    if (byLabel !== null) return byLabel;
-  } catch {}
-  return null;
-}
-
 function highlightElement(targetId: string): ActionResponse {
-  const element = findTargetElement(targetId);
+  const findTarget = (id: string): HTMLElement | null => {
+    try {
+      const bySaathi = document.querySelector<HTMLElement>(`[data-saathi-id="${CSS.escape(id)}"]`);
+      if (bySaathi !== null) return bySaathi;
+    } catch {}
+    const byId = document.getElementById(id);
+    if (byId !== null) return byId;
+    try {
+      const byName = document.querySelector<HTMLElement>(`[name="${CSS.escape(id)}"]`);
+      if (byName !== null) return byName;
+      const byLabel = document.querySelector<HTMLElement>(`[aria-label="${CSS.escape(id)}"]`);
+      if (byLabel !== null) return byLabel;
+    } catch {}
+    return null;
+  };
+
+  const element = findTarget(targetId);
   if (element === null) return { ok: false, message: "The highlighted item is no longer on the page." };
   element.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
   const oldOutline = element.style.outline;
@@ -112,7 +121,23 @@ function highlightElement(targetId: string): ActionResponse {
 }
 
 function executeAction(action: Action): ActionResponse {
-  const element = findTargetElement(action.target_id);
+  const findTarget = (id: string): HTMLElement | null => {
+    try {
+      const bySaathi = document.querySelector<HTMLElement>(`[data-saathi-id="${CSS.escape(id)}"]`);
+      if (bySaathi !== null) return bySaathi;
+    } catch {}
+    const byId = document.getElementById(id);
+    if (byId !== null) return byId;
+    try {
+      const byName = document.querySelector<HTMLElement>(`[name="${CSS.escape(id)}"]`);
+      if (byName !== null) return byName;
+      const byLabel = document.querySelector<HTMLElement>(`[aria-label="${CSS.escape(id)}"]`);
+      if (byLabel !== null) return byLabel;
+    } catch {}
+    return null;
+  };
+
+  const element = findTarget(action.target_id);
   if (element === null) return { ok: false, message: "That field is no longer on the page." };
   const input = element as HTMLInputElement;
   const label = `${element.textContent ?? ""} ${element.getAttribute("aria-label") ?? ""} ${input.type}`;
