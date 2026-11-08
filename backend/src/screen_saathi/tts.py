@@ -56,32 +56,31 @@ class GnaniTtsTransport:
         self._socket: TtsSocket | None = None
 
     async def connect(self) -> None:
-        self._socket = await websockets.connect(
-            self.endpoint, additional_headers={"X-API-Key-ID": self.api_key}
-        )
+        pass
 
     async def _stream(self, request: TtsRequest) -> AsyncIterator[bytes]:
-        socket = self._socket
-        if socket is None:
-            raise RuntimeError("TTS transport is not connected")
-        payload = json.dumps(request.gnani_payload(), ensure_ascii=False)
-        await socket.send(payload)
-        async for raw in socket:
-            if not isinstance(raw, (str, bytes)):
-                continue
-            message = parse_json_object(raw)
-            if message is None:
-                continue
-            kind = message.get("type", message.get("event"))
-            if kind == "audio":
-                data = message.get("data")
-                encoded = data.get("audio") if isinstance(data, dict) else None
-                if isinstance(encoded, str):
-                    yield base64.b64decode(encoded)
-            elif kind in {"complete", "done"}:
-                return
-            elif kind == "error":
-                raise RuntimeError("TTS provider returned an error")
+        async with websockets.connect(
+            self.endpoint, additional_headers={"X-API-Key-ID": self.api_key}
+        ) as socket:
+            self._socket = socket
+            payload = json.dumps(request.gnani_payload(), ensure_ascii=False)
+            await socket.send(payload)
+            async for raw in socket:
+                if not isinstance(raw, (str, bytes)):
+                    continue
+                message = parse_json_object(raw)
+                if message is None:
+                    continue
+                kind = message.get("type", message.get("event"))
+                if kind == "audio":
+                    data = message.get("data")
+                    encoded = data.get("audio") if isinstance(data, dict) else None
+                    if isinstance(encoded, str):
+                        yield base64.b64decode(encoded)
+                elif kind in {"complete", "done"}:
+                    return
+                elif kind == "error":
+                    raise RuntimeError("TTS provider returned an error")
 
     def stream(self, request: TtsRequest) -> AsyncIterator[bytes]:
         return self._stream(request)
@@ -89,8 +88,11 @@ class GnaniTtsTransport:
     async def close(self) -> None:
         socket = self._socket
         if socket is not None:
-            await socket.close()
             self._socket = None
+            try:
+                await socket.close()
+            except Exception:
+                pass
 
 
 class TtsCache:

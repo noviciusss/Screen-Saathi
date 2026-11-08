@@ -46,7 +46,13 @@ def _page_data(request: ReasonRequest) -> str:
         return "{}"
     snapshot = context.snapshot
     clean_elements = [
-        {"id": el.id, "name": el.name, "role": el.role or el.tag}
+        {
+            "id": el.id,
+            "name": el.name,
+            "role": el.role or el.tag,
+            "value": el.value or "",
+            "filled": bool(el.value and el.value.strip()),
+        }
         for el in snapshot.elements[:40]
         if el.name.strip()
     ]
