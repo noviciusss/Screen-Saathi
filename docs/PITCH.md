@@ -33,3 +33,4 @@ Screen Saathi combines high-performance streaming speech infrastructure with an 
 
 ## 5. Summary & Impact
 Screen Saathi bridges Bharat’s digital divide, transforming the open web into an approachable, voice-guided experience that empowers every citizen to use online services independently, safely, and with dignity.
+

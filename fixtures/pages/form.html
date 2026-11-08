@@ -1,17 +1,513 @@
 <!doctype html>
-<html lang="en">
-  <head><meta charset="utf-8"><title>Service request form</title></head>
+<html lang="hi">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>नागरिक सेवा एवं कल्याण पोर्टल | National Citizen Service Portal</title>
+    <style>
+      :root {
+        --gov-blue: #0b3b60;
+        --gov-blue-dark: #07253d;
+        --gov-blue-light: #e8f0fe;
+        --saffron: #f97316;
+        --green: #15803d;
+        --border-color: #cbd5e1;
+        --text-main: #0f172a;
+        --text-muted: #475569;
+        --card-bg: #ffffff;
+        --page-bg: #f1f5f9;
+      }
+
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans Devanagari", sans-serif;
+        background-color: var(--page-bg);
+        color: var(--text-main);
+        line-height: 1.5;
+        padding-bottom: 60px;
+      }
+
+      /* Tiranga Top Strip */
+      .tiranga-bar {
+        height: 6px;
+        background: linear-gradient(90deg, #ff9933 0%, #ff9933 33.3%, #ffffff 33.3%, #ffffff 66.6%, #138808 66.6%, #138808 100%);
+      }
+
+      /* Official Portal Header */
+      .gov-header {
+        background-color: #ffffff;
+        border-bottom: 2px solid #e2e8f0;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      }
+      .header-top {
+        background-color: var(--gov-blue-dark);
+        color: #e2e8f0;
+        font-size: 0.82rem;
+        padding: 6px 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .header-main {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 16px 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .gov-emblem-badge {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+      .emblem-icon {
+        width: 48px;
+        height: 48px;
+        background: var(--gov-blue);
+        color: #fff;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.2rem;
+        border: 2px solid var(--saffron);
+      }
+      .portal-titles h1 {
+        font-size: 1.25rem;
+        color: var(--gov-blue);
+        font-weight: 700;
+        letter-spacing: -0.01em;
+      }
+      .portal-titles p {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+      }
+      .help-badge {
+        background: var(--gov-blue-light);
+        border: 1px solid #bfdbfe;
+        color: var(--gov-blue);
+        padding: 8px 14px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-align: right;
+      }
+
+      /* Main Content Container */
+      .container {
+        max-width: 900px;
+        margin: 28px auto;
+        padding: 0 16px;
+      }
+
+      /* Notice Banner */
+      .demo-notice {
+        background: #fffbeb;
+        border-left: 4px solid #f59e0b;
+        padding: 12px 16px;
+        border-radius: 4px;
+        margin-bottom: 24px;
+        font-size: 0.9rem;
+        color: #92400e;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      /* Form Card */
+      .form-card {
+        background: var(--card-bg);
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.06), 0 2px 4px -2px rgba(0,0,0,0.04);
+        overflow: hidden;
+      }
+      .form-header {
+        background: var(--gov-blue);
+        color: #ffffff;
+        padding: 20px 28px;
+      }
+      .form-header h2 {
+        font-size: 1.35rem;
+        font-weight: 700;
+      }
+      .form-header p {
+        font-size: 0.9rem;
+        color: #cbd5e1;
+        margin-top: 4px;
+      }
+
+      .form-body {
+        padding: 28px;
+      }
+
+      /* Sections & Fieldsets */
+      .section-block {
+        margin-bottom: 28px;
+        padding-bottom: 24px;
+        border-bottom: 1px dashed var(--border-color);
+      }
+      .section-block:last-of-type {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+      }
+      .section-title {
+        font-size: 1.05rem;
+        color: var(--gov-blue);
+        font-weight: 700;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .section-number {
+        background: var(--gov-blue);
+        color: white;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        font-size: 0.8rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      /* Grid Layout */
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 20px 24px;
+      }
+      .full-width {
+        grid-column: 1 / -1;
+      }
+
+      /* Form Controls */
+      .field-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .field-group label {
+        font-size: 0.92rem;
+        font-weight: 600;
+        color: #1e293b;
+      }
+      .field-group label .hint-text {
+        font-weight: 400;
+        font-size: 0.82rem;
+        color: var(--text-muted);
+      }
+      .field-group label .required-star {
+        color: #dc2626;
+        margin-left: 2px;
+      }
+
+      input[type="text"],
+      input[type="tel"],
+      input[type="date"],
+      select,
+      textarea {
+        width: 100%;
+        min-height: 46px;
+        padding: 10px 14px;
+        font-size: 0.95rem;
+        font-family: inherit;
+        border: 1.5px solid #94a3b8;
+        border-radius: 6px;
+        background-color: #ffffff;
+        color: var(--text-main);
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      }
+      input[type="text"]:focus,
+      input[type="tel"]:focus,
+      input[type="date"]:focus,
+      select:focus,
+      textarea:focus {
+        outline: none;
+        border-color: var(--gov-blue);
+        box-shadow: 0 0 0 3px rgba(11, 59, 96, 0.18);
+      }
+      textarea {
+        min-height: 90px;
+        resize: vertical;
+      }
+
+      /* Radio / Checkbox options */
+      .options-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        padding-top: 6px;
+      }
+      .option-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.92rem;
+        cursor: pointer;
+        padding: 6px 10px;
+        border-radius: 4px;
+        border: 1px solid #e2e8f0;
+        background: #f8fafc;
+      }
+      .option-label input {
+        width: 18px;
+        height: 18px;
+        accent-color: var(--gov-blue);
+      }
+
+      /* Safety Notice Box */
+      .safety-box {
+        background-color: #eff6ff;
+        border: 1px solid #bfdbfe;
+        border-radius: 6px;
+        padding: 16px;
+        margin-top: 24px;
+        font-size: 0.88rem;
+        color: #1e3a8a;
+      }
+      .safety-box strong {
+        color: #1e40af;
+        display: block;
+        margin-bottom: 4px;
+      }
+
+      /* Action Buttons Bar */
+      .action-bar {
+        margin-top: 28px;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 16px;
+      }
+      .btn-secondary {
+        min-height: 48px;
+        padding: 0 22px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        background: #ffffff;
+        border: 1.5px solid #94a3b8;
+        border-radius: 6px;
+        color: var(--text-muted);
+        cursor: pointer;
+      }
+      .btn-secondary:hover {
+        background: #f1f5f9;
+      }
+      .btn-submit {
+        min-height: 48px;
+        padding: 0 32px;
+        font-size: 1.05rem;
+        font-weight: 700;
+        background: var(--gov-blue);
+        color: #ffffff;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        transition: background 0.15s ease;
+      }
+      .btn-submit:hover {
+        background: var(--gov-blue-dark);
+      }
+    </style>
+  </head>
   <body>
-    <main>
-      <h1>Service request</h1>
-      <p>Use this synthetic form to ask for help with a public service.</p>
-      <form id="service-form">
-        <label for="resident-name">Resident name</label>
-        <input id="resident-name" name="resident-name" type="text" placeholder="Your name" required>
-        <label for="service-type">Service type</label>
-        <select id="service-type" name="service-type"><option>Water connection</option><option>Street light</option></select>
-        <button type="submit">Send request</button>
-      </form>
+    <!-- Top Tiranga Decorative Strip -->
+    <div class="tiranga-bar"></div>
+
+    <!-- Official Portal Header -->
+    <header class="gov-header">
+      <div class="header-top">
+        <span>भारत सरकार | Government of India</span>
+        <span>राष्ट्रीय नागरिक सेवा पोर्टल (National Citizen Service Portal)</span>
+      </div>
+      <div class="header-main">
+        <div class="gov-emblem-badge">
+          <div class="emblem-icon">🏛️</div>
+          <div class="portal-titles">
+            <h1>ग्रामीण विकास एवं नागरिक सेवा कल्याण विभाग</h1>
+            <p>Department of Rural Development &amp; Citizen Welfare</p>
+          </div>
+        </div>
+        <div class="help-badge">
+          <div>हेल्पलाइन / Toll-Free</div>
+          <div style="font-size: 1.05rem; color: #b45309;">1800-11-2026</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Form Container -->
+    <main class="container">
+      <!-- Demo Disclaimer Banner -->
+      <div class="demo-notice">
+        <span>ℹ️</span>
+        <div>
+          <strong>कृत्रिम डेमो फॉर्म (Synthetic Demo Form):</strong> यह पेज Screen Saathi वॉइस असिस्टेंट के प्रदर्शन के लिए बनाया गया है। इसमें किसी भी वास्तविक आधार या बैंक खाते की आवश्यकता नहीं है।
+        </div>
+      </div>
+
+      <!-- Main Application Card -->
+      <div class="form-card">
+        <div class="form-header">
+          <h2>प्रधानमंत्री जन कल्याण सेवा आवेदन पत्र</h2>
+          <p>PM Jan Kalyan Citizen Assistance Scheme — Application Form 2026</p>
+        </div>
+
+        <form id="service-form" class="form-body">
+          <!-- Section 1: Applicant Identity -->
+          <div class="section-block">
+            <div class="section-title">
+              <span class="section-number">1</span>
+              <span>आवेदक का व्यक्तिगत विवरण (Applicant Personal Details)</span>
+            </div>
+            <div class="form-grid">
+              <div class="field-group">
+                <label for="resident-name">
+                  आवेदक का पूरा नाम <span class="hint-text">(Full Name)</span>
+                  <span class="required-star">*</span>
+                </label>
+                <input id="resident-name" name="resident-name" type="text" placeholder="उदाहरण: रमेश कुमार" required autocomplete="name">
+              </div>
+
+              <div class="field-group">
+                <label for="guardian-name">
+                  पिता / पति का नाम <span class="hint-text">(Father / Guardian Name)</span>
+                </label>
+                <input id="guardian-name" name="guardian-name" type="text" placeholder="अभिभावक का नाम">
+              </div>
+
+              <div class="field-group">
+                <label for="applicant-dob">
+                  जन्म तिथि <span class="hint-text">(Date of Birth)</span>
+                </label>
+                <input id="applicant-dob" name="applicant-dob" type="date">
+              </div>
+
+              <div class="field-group">
+                <label for="applicant-gender">
+                  लिंग <span class="hint-text">(Gender)</span>
+                </label>
+                <select id="applicant-gender" name="applicant-gender">
+                  <option value="">-- लिंग चुनें / Select Gender --</option>
+                  <option value="male">पुरुष (Male)</option>
+                  <option value="female">महिला (Female)</option>
+                  <option value="other">अन्य (Other)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 2: Address & Region -->
+          <div class="section-block">
+            <div class="section-title">
+              <span class="section-number">2</span>
+              <span>निवास एवं क्षेत्र विवरण (Address &amp; Location)</span>
+            </div>
+            <div class="form-grid">
+              <div class="field-group">
+                <label for="state-select">
+                  राज्य / केंद्र शासित प्रदेश <span class="hint-text">(State)</span>
+                  <span class="required-star">*</span>
+                </label>
+                <select id="state-select" name="state-select" required>
+                  <option value="">-- राज्य चुनें / Select State --</option>
+                  <option value="UP">उत्तर प्रदेश (Uttar Pradesh)</option>
+                  <option value="MH">महाराष्ट्र (Maharashtra)</option>
+                  <option value="BR">बिहार (Bihar)</option>
+                  <option value="MP">मध्य प्रदेश (Madhya Pradesh)</option>
+                  <option value="RJ">राजस्थान (Rajasthan)</option>
+                  <option value="WB">पश्चिम बंगाल (West Bengal)</option>
+                  <option value="DL">दिल्ली (Delhi)</option>
+                  <option value="other">अन्य (Other)</option>
+                </select>
+              </div>
+
+              <div class="field-group">
+                <label for="district-name">
+                  ज़िला <span class="hint-text">(District)</span>
+                  <span class="required-star">*</span>
+                </label>
+                <input id="district-name" name="district-name" type="text" placeholder="ज़िले का नाम" required>
+              </div>
+
+              <div class="field-group full-width">
+                <label for="village-address">
+                  गाँव / मोहल्ला एवं पूरा पता <span class="hint-text">(Village / Street Address)</span>
+                </label>
+                <input id="village-address" name="village-address" type="text" placeholder="मकान संख्या, गली या गाँव का नाम">
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 3: Service Selection -->
+          <div class="section-block">
+            <div class="section-title">
+              <span class="section-number">3</span>
+              <span>अनुरोध की जाने वाली सेवा (Requested Citizen Service)</span>
+            </div>
+            <div class="form-grid">
+              <div class="field-group full-width">
+                <label for="service-type">
+                  सेवा का प्रकार <span class="hint-text">(Service Category)</span>
+                  <span class="required-star">*</span>
+                </label>
+                <select id="service-type" name="service-type" required>
+                  <option value="">-- आवश्यक सेवा चुनें / Select Service --</option>
+                  <option value="water">नल जल योजना कनेक्शन (Drinking Water Tap Connection)</option>
+                  <option value="ration">राशन कार्ड नवीनीकरण / जोड़ना (Ration Card Services)</option>
+                  <option value="streetlight">स्ट्रीट लाइट / सड़क मरम्मत (Street Light &amp; Road Repair)</option>
+                  <option value="pension">वृद्धावस्था / विधवा पेंशन सहायता (Old-Age &amp; Widow Pension)</option>
+                  <option value="housing">ग्रामीण आवास योजना पूछताछ (Rural Housing Assistance)</option>
+                </select>
+              </div>
+
+              <div class="field-group full-width">
+                <label for="service-description">
+                  समस्या या अनुरोध का संक्षिप्त विवरण <span class="hint-text">(Brief Description of Request)</span>
+                </label>
+                <textarea id="service-description" name="service-description" placeholder="अपनी समस्या या अनुरोध के बारे में संक्षेप में लिखें..."></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 4: Declaration & Verification -->
+          <div class="section-block">
+            <div class="section-title">
+              <span class="section-number">4</span>
+              <span>घोषणा एवं सत्यापन (Declaration)</span>
+            </div>
+            <div class="field-group">
+              <label class="option-label" for="declaration-check">
+                <input id="declaration-check" name="declaration" type="checkbox">
+                <span>मैं प्रमाणित करता/करती हूँ कि ऊपर दी गई सभी जानकारी मेरी जानकारी के अनुसार सत्य है।</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Safety Guardrail Banner -->
+          <div class="safety-box">
+            <strong>🛡️ Screen Saathi सुरक्षा नियम (Safety Policy):</strong>
+            Screen Saathi आपके कहे अनुसार फ़ील्ड्स में जानकारी भरने में मदद करता है और हर बदलाव से पहले आपसे अनुमति मांगता है। सुरक्षा कारणों से <strong>'आवेदन जमा करें' (Submit)</strong> बटन Screen Saathi द्वारा कभी भी अपने आप नहीं दबाया जाएगा। फ़ॉर्म पूरा होने के बाद कृपया जानकारी की स्वयं जाँच करके Submit बटन दबाएँ।
+          </div>
+
+          <!-- Action Buttons Bar -->
+          <div class="action-bar">
+            <button type="reset" class="btn-secondary">रीसेट करें (Reset)</button>
+            <button type="submit" id="submit-btn" class="btn-submit">
+              <span>आवेदन जमा करें (Submit Application)</span>
+              <span>→</span>
+            </button>
+          </div>
+        </form>
+      </div>
     </main>
   </body>
 </html>
