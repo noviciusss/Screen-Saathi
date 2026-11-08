@@ -137,6 +137,67 @@ function executeAction(action: Action): ActionResponse {
     return null;
   };
 
+  const normalizeDate = (raw: string): string => {
+    const trimmed = raw.trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) return trimmed;
+
+    const months: Record<string, string> = {
+      jan: "01", january: "01", "जनवरी": "01", "जन": "01",
+      feb: "02", february: "02", "फ़रवरी": "02", "फरवरी": "02",
+      mar: "03", march: "03", "मार्च": "03",
+      apr: "04", april: "04", "अप्रैल": "04",
+      may: "05", "मई": "05",
+      jun: "06", june: "06", "जून": "06",
+      jul: "07", july: "07", "जुलाई": "07",
+      aug: "08", august: "08", "अगस्त": "08",
+      sep: "09", sept: "09", september: "09", "सितंबर": "09",
+      oct: "10", october: "10", "अक्टूबर": "10",
+      nov: "11", november: "11", "नवंबर": "11",
+      dec: "12", december: "12", "दिसंबर": "12",
+    };
+
+    for (const [mName, mNum] of Object.entries(months)) {
+      if (trimmed.toLowerCase().includes(mName)) {
+        const nums = trimmed.match(/\b\d{1,4}\b/g);
+        if (nums && nums.length >= 2) {
+          let day = nums[0];
+          let year = nums[nums.length - 1];
+          if (day.length === 4) {
+            year = nums[0];
+            day = nums[nums.length - 1];
+          }
+          if (year.length === 2) year = Number(year) > 30 ? `19${year}` : `20${year}`;
+          const padDay = day.padStart(2, "0");
+          return `${year}-${mNum}-${padDay}`;
+        }
+      }
+    }
+
+    const parts = trimmed.split(/[/.\s-]+/);
+    if (parts.length === 3) {
+      let [p1, p2, p3] = parts;
+      if (p1.length === 4) {
+        return `${p1}-${p2.padStart(2, "0")}-${p3.padStart(2, "0")}`;
+      }
+      let year = p3;
+      if (year.length === 2) year = Number(year) > 30 ? `19${year}` : `20${year}`;
+      const month = p2.padStart(2, "0");
+      const day = p1.padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+
+    const parsed = Date.parse(trimmed);
+    if (!isNaN(parsed)) {
+      const d = new Date(parsed);
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, "0");
+      const dd = String(d.getDate()).padStart(2, "0");
+      return `${yyyy}-${mm}-${dd}`;
+    }
+
+    return raw;
+  };
+
   const element = findTarget(action.target_id);
   if (element === null) return { ok: false, message: "That field is no longer on the page." };
   const input = element as HTMLInputElement;
@@ -211,11 +272,24 @@ function executeAction(action: Action): ActionResponse {
   }
   if (action.type === "fill") {
     if (action.value === null || action.value === undefined) return { ok: false, message: "No value was provided." };
-    input.value = action.value;
+    const isDateField =
+      input.type === "date" ||
+      /dob|birth|date|दिनांक|तारीख|जन्म/i.test(`${element.id} ${element.getAttribute("name") || ""} ${label}`);
+    let valueToSet = action.value;
+    if (isDateField) {
+      valueToSet = normalizeDate(action.value);
+    }
+    input.value = valueToSet;
+    if (isDateField && !input.value && action.value) {
+      try {
+        input.type = "text";
+        input.value = action.value;
+      } catch {}
+    }
     try {
       const proto = Object.getPrototypeOf(input);
       const descriptor = Object.getOwnPropertyDescriptor(proto, "value");
-      descriptor?.set?.call(input, action.value);
+      descriptor?.set?.call(input, input.value);
     } catch {}
     input.dispatchEvent(new Event("input", { bubbles: true }));
     input.dispatchEvent(new Event("change", { bubbles: true }));

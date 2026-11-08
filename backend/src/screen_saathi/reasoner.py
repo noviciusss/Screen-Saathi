@@ -50,6 +50,7 @@ def _page_data(request: ReasonRequest) -> str:
             "id": el.id,
             "name": el.name,
             "role": el.role or el.tag,
+            "type": el.type or "",
             "value": el.value or "",
             "filled": bool(el.value and el.value.strip()),
             **({"options": el.options[:10]} if el.options else {}),

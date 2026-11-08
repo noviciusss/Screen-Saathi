@@ -98,4 +98,17 @@ describe("guided form coordinator", () => {
     expect(currentGuidedField(page, next)?.id).toBe("service");
     expect(updateSnapshotAfterAction(page, action).elements.find((item) => item.id === "name")?.state).toEqual(["required"]);
   });
+
+  it("resumes from the first unfilled field when a form is already partially filled", () => {
+    const halfFilledPage: PageSnapshot = {
+      ...page,
+      elements: page.elements.map((el) =>
+        el.id === "name" ? { ...el, value: "Ramesh Kumar" } : el,
+      ),
+    };
+    const flow = firstGuidedForm(halfFilledPage);
+    expect(flow?.completedIds).toEqual(["name"]);
+    expect(currentGuidedField(halfFilledPage, flow)?.id).toBe("service");
+    expect(currentGuidedField(halfFilledPage, null)?.id).toBe("service");
+  });
 });
