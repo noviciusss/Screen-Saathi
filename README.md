@@ -1,12 +1,16 @@
 # Screen Saathi
 
+> **An Accessible Voice Assistant for Bharat's Digital Web**  
+> Built for the *Great Indian AI Internship Challenge* by Gnani.ai  
+> 📄 **Official Solution Pitch:** [Read PITCH.md](PITCH.md)
+
 Screen Saathi is a Chrome Manifest V3 voice assistant for explaining web pages in an Indian language and guiding users through synthetic forms without acting behind their back.
 
 ## Current status
 
 The extension-first assistant flow is implemented through the redacted page
 snapshot, structured reasoner response, highlight overlay, scam verdict card,
-and confirmation-gated page actions. See `docs/submission.md` and `docs/safety.md`
+and confirmation-gated page actions. See [PITCH.md](PITCH.md) and `docs/safety.md`
 for architecture, safety invariants, and evaluation details.
 
 ## Local setup
