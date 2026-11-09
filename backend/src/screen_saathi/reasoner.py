@@ -168,9 +168,10 @@ class OpenAICompatibleReasoner:
         )
         if request.context is not None and request.context.guided_field_id is not None:
             user += (
-                "\nGuided form mode is active. If proposing an action, target only "
-                f"the next field id {request.context.guided_field_id!r} named "
-                f"{request.context.guided_field_name!r}. Never skip ahead or submit."
+                f"\nRecommended next field is id {request.context.guided_field_id!r} named "
+                f"{request.context.guided_field_name!r}. However, if the user explicitly specifies "
+                "or refers to another field (such as service type, dob, address, etc.), "
+                "target that requested field directly. Never automate clicking submit, pay, or delete buttons."
             )
         if repair is not None:
             user += (

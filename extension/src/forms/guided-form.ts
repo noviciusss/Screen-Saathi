@@ -47,26 +47,7 @@ export function currentGuidedField(
   snapshot: PageSnapshot,
   flow: GuidedFormState | null,
 ): GuidedField | null {
-  if (flow === null) {
-    for (const form of snapshot.forms) {
-      for (const id of form.fields) {
-        const element = snapshot.elements.find((candidate) => candidate.id === id);
-        if (
-          element !== undefined &&
-          isFillable(element) &&
-          (!element.value || element.value.trim().length === 0)
-        ) {
-          return {
-            id: element.id,
-            name: element.name || element.hint || "this field",
-            type: element.type,
-            required: element.required,
-          };
-        }
-      }
-    }
-    return null;
-  }
+  if (flow === null) return null;
   for (const id of flow.fieldIds) {
     if (flow.completedIds.includes(id)) continue;
     const element = snapshot.elements.find((candidate) => candidate.id === id);

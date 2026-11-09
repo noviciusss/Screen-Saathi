@@ -73,7 +73,7 @@ STT_LANGUAGE_BY_SESSION_LANGUAGE = {
     # Prisma accepts en-IN for mixed Hindi-English speech; hi-en is Timbre-only.
     "hi-en": "en-IN",
 }
-STT_FINAL_WAIT_SECONDS = 4.0
+STT_FINAL_WAIT_SECONDS = 2.0
 STT_TASK_WAIT_SECONDS = 15.0
 DISCLOSED_CLIENTS: set[str] = set()
 

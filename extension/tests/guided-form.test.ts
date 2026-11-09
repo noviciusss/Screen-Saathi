@@ -109,6 +109,6 @@ describe("guided form coordinator", () => {
     const flow = firstGuidedForm(halfFilledPage);
     expect(flow?.completedIds).toEqual(["name"]);
     expect(currentGuidedField(halfFilledPage, flow)?.id).toBe("service");
-    expect(currentGuidedField(halfFilledPage, null)?.id).toBe("service");
+    expect(currentGuidedField(halfFilledPage, null)).toBeNull();
   });
 });
